@@ -3,6 +3,7 @@ package day3
 import (
 	"bufio"
 	_ "embed"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -14,16 +15,27 @@ func Run() {
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	priorities := 0
 	for scanner.Scan() {
-		rucksack := scanner.Text()
-		middleIndex := len(rucksack) / 2
-		compartment1 := rucksack[:middleIndex]
-		compartment2 := rucksack[middleIndex:]
+		rucksack1 := scanner.Text()
+		scanner.Scan()
+		rucksack2 := scanner.Text()
+		scanner.Scan()
+		rucksack3 := scanner.Text()
 
-		sharedItems := findSharedItems(compartment1, compartment2)
+		badge, _ := findSharedItem(distinctItems(rucksack1), distinctItems(rucksack2), distinctItems(rucksack3))
 
-		priorities += itemsPriorities(sharedItems)
+		priorities += itemsPriorities([]rune{badge})
 	}
 	fmt.Println("priorities:", priorities)
+}
+
+func findSharedItem(items1 []rune, items2 []rune, items3 []rune) (rune, error) {
+	for _, item := range items1 {
+		if strings.ContainsRune(string(items2), item) &&
+			strings.ContainsRune(string(items3), item) {
+			return item, nil
+		}
+	}
+	return -1, errors.New("no shared item found")
 }
 
 func findSharedItems(compartment1 string, compartment2 string) []rune {
