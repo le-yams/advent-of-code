@@ -20,7 +20,7 @@ func Run() {
 		sections1 := parseSections(s1)
 		sections2 := parseSections(s2)
 
-		if sections1.fullyContains(sections2) || sections2.fullyContains(sections1) {
+		if sections1.overlaps(sections2) || sections2.overlaps(sections1) {
 			overlaps += 1
 		}
 	}
@@ -48,4 +48,10 @@ func (sections *sections) String() string {
 }
 func (sections *sections) fullyContains(other *sections) bool {
 	return sections.start <= other.start && sections.end >= other.end
+}
+func (sections *sections) contains(section int) bool {
+	return section >= sections.start && section <= sections.end
+}
+func (sections *sections) overlaps(other *sections) bool {
+	return other.contains(sections.start) || other.contains(sections.end)
 }
