@@ -34,7 +34,8 @@ func Run() {
 		line := scanner.Text()
 
 		otherHand, _ := parseOtherHand(rune(line[0]))
-		myHand, _ := parseMyHand(rune(line[2]))
+		expectedResult, _ := parseExpectedResult(rune(line[2]))
+		myHand := whatShouldIPlay(otherHand, expectedResult)
 
 		lineScore := int(myHand)
 		lineScore += score(otherHand, myHand)
@@ -68,18 +69,51 @@ func parseMyHand(code rune) (hand, error) {
 	return -1, errors.New("unknown hand")
 }
 
+func parseExpectedResult(code rune) (result, error) {
+	switch code {
+	case 'X':
+		return lost, nil
+	case 'Y':
+		return draw, nil
+	case 'Z':
+		return win, nil
+	}
+	return -1, errors.New("unknown result")
+}
+
+func whatShouldIPlay(otherHand hand, expectedResult result) hand {
+	if expectedResult == draw {
+		return otherHand
+	}
+	if expectedResult == win {
+		return winningHand(otherHand)
+	}
+
+	return losingHand(otherHand)
+}
+
+func winningHand(otherHand hand) hand {
+	wHand := (otherHand + 1) % 4
+	if wHand == 0 {
+		wHand += 1
+	}
+	return wHand
+}
+
+func losingHand(otherHand hand) hand {
+	lHand := otherHand - 1
+	if lHand == 0 {
+		lHand = 3
+	}
+	return lHand
+}
+
 func score(otherHand hand, myHand hand) int {
 	if myHand == otherHand {
 		return int(draw)
 	}
 
-	winningHand := (otherHand + 1) % 4
-
-	if winningHand == 0 {
-		winningHand += 1
-	}
-
-	if myHand == winningHand {
+	if myHand == winningHand(otherHand) {
 		return int(win)
 	}
 	return int(lost)
