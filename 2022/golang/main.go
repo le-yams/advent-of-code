@@ -1,7 +1,9 @@
 package main
 
-import "aoc2022/day3"
+import (
+	"aoc2022/day4"
+)
 
 func main() {
-	day3.Run()
+	day4.Run()
 }
