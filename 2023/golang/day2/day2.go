@@ -11,52 +11,49 @@ import (
 //go:embed input.txt
 var input string
 
-var maxRed = 12
-var maxGreen = 13
-var maxBlue = 14
-
 func Run() {
 	games := 0
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
 		line := scanner.Text()
-		games += computeGameValue(line)
+		minimalBlue, minimalRed, minimalGreen := computeGameMinimalCubes(line)
+		games += minimalBlue * minimalRed * minimalGreen
 	}
 
 	fmt.Println("games:", games)
 }
 
-func computeGameValue(line string) int {
-	gameInfo, subsets, _ := strings.Cut(line, ":")
-	gameId, _ := strings.CutPrefix(gameInfo, "Game ")
-	gameValue, _ := strconv.Atoi(gameId)
+func computeGameMinimalCubes(line string) (int, int, int) {
+	_, subsets, _ := strings.Cut(line, ":")
+
+	minimalBlue := 0
+	minimalRed := 0
+	minimalGreen := 0
 	for _, subset := range strings.Split(subsets, ";") {
-		if subsetNotPossible(subset) {
-			return 0
-		}
+		blue, red, green := parseSubsetCubes(subset)
+		minimalBlue = max(blue, minimalBlue)
+		minimalRed = max(red, minimalRed)
+		minimalGreen = max(green, minimalGreen)
 	}
-	return gameValue
+	return minimalBlue, minimalRed, minimalGreen
 }
 
-func subsetNotPossible(subset string) bool {
+func parseSubsetCubes(subset string) (int, int, int) {
+	blue := 0
+	red := 0
+	green := 0
 	for _, cubes := range strings.Split(subset, ",") {
 		cubes = strings.TrimSpace(cubes)
 		countStr, color, _ := strings.Cut(cubes, " ")
 		count, _ := strconv.Atoi(countStr)
 		switch color {
 		case "blue":
-			if count > maxBlue {
-				return true
-			}
+			blue = count
 		case "red":
-			if count > maxRed {
-				return true
-			}
+			red = count
 		case "green":
-			if count > maxGreen {
-				return true
-			}
+			green = count
 		}
 	}
-	return false
+	return blue, red, green
 }
